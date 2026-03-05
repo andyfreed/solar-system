@@ -212,7 +212,7 @@ def build_response():
         planets.append(compute_planet(name, elems, T))
 
     # Generate SVG and base64 encode for each layout
-    svg_full = generate_svg(planets, 480, 400, label_mode="full")
+    svg_full = generate_svg(planets, 560, 430, label_mode="full")
     svg_half = generate_svg(planets, 350, 210, label_mode="short")
     svg_quad = generate_svg(planets, 300, 210, label_mode="short")
 
