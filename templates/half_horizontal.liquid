@@ -12,15 +12,13 @@
 
   <div class="columns">
     <div class="column">
+      <img src="data:image/svg+xml;base64,{{ img_half }}" width="350" height="210" />
+    </div>
+    <div class="column">
       {% for planet in planets %}
-      {% if forloop.index <= 4 %}
-      <div class="meta" {% unless forloop.last %}style="margin-bottom:8px"{% endunless %}>
-        <span class="title title--small">{{ planet.name }}</span>
-        <span class="description">
-          {{ planet.distance }} AU &middot; {{ planet.direction }}
-        </span>
+      <div style="margin-bottom:2px">
+        <strong>{{ planet.name }}</strong> {{ planet.distance }} AU
       </div>
-      {% endif %}
       {% endfor %}
     </div>
   </div>

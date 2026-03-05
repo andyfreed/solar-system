@@ -9,13 +9,7 @@
   </div>
   <div class="columns">
     <div class="column">
-      {% for planet in planets %}
-      {% if forloop.index <= 4 %}
-      <div style="margin-bottom:4px">
-        <strong>{{ planet.name }}</strong> {{ planet.distance }} AU
-      </div>
-      {% endif %}
-      {% endfor %}
+      <img src="data:image/svg+xml;base64,{{ img_quad }}" width="300" height="210" />
     </div>
   </div>
   <div class="columns">

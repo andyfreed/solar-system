@@ -6,6 +6,7 @@ No external API needed — positions computed from NASA/JPL orbital elements.
 """
 
 from http.server import BaseHTTPRequestHandler
+import base64
 import json
 import math
 from datetime import datetime, timezone
@@ -72,9 +73,9 @@ PLANETS = {
     },
 }
 
-PLANET_SYMBOLS = {
-    "Mercury": "\u263f", "Venus": "\u2640", "Earth": "\u2641", "Mars": "\u2642",
-    "Jupiter": "\u2643", "Saturn": "\u2644", "Uranus": "\u2645", "Neptune": "\u2646",
+PLANET_DOT_R = {
+    "Mercury": 2.5, "Venus": 3, "Earth": 3.5, "Mars": 3,
+    "Jupiter": 5, "Saturn": 4.5, "Uranus": 4, "Neptune": 4,
 }
 
 
@@ -123,26 +124,83 @@ def compute_planet(name, elems, T):
     y = x_ecl * math.sin(Omega_rad) + y_ecl * math.cos(Omega_rad)
 
     dist = math.sqrt(x * x + y * y)
-    angle = math.degrees(math.atan2(y, x)) % 360
-
-    # Clock position (1-12) for intuitive display
-    clock = int(((90 - angle) % 360) / 30) + 1
-    if clock > 12:
-        clock = 12
-
-    # Compass direction
-    dirs = ["E", "ENE", "NE", "NNE", "N", "NNW", "NW", "WNW",
-            "W", "WSW", "SW", "SSW", "S", "SSE", "SE", "ESE"]
-    direction = dirs[int(((angle + 11.25) % 360) / 22.5)]
 
     return {
         "name": name,
-        "symbol": PLANET_SYMBOLS.get(name, ""),
-        "distance": f"{dist:.2f}",
-        "angle": f"{angle:.0f}",
-        "direction": direction,
-        "clock": f"{clock} o'clock",
+        "x_au": x,
+        "y_au": y,
+        "distance_au": round(dist, 2),
+        "semi_major": a,
     }
+
+
+def scale_distance(au, max_au=32.0, max_px=200):
+    return (math.sqrt(au) / math.sqrt(max_au)) * max_px
+
+
+def generate_svg(planets, width, height, label_mode="full"):
+    cx = width / 2
+    cy = height / 2
+    margin = 28
+    max_r = min(cx, cy) - margin
+
+    lines = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" '
+        f'width="{width}" height="{height}" '
+        f'viewBox="0 0 {width} {height}">',
+        f'<rect width="{width}" height="{height}" fill="white"/>',
+    ]
+
+    # Orbital rings
+    for name, elems in PLANETS.items():
+        a = elems["a"][0]
+        r = scale_distance(a, max_px=max_r)
+        lines.append(
+            f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r:.1f}" '
+            f'fill="none" stroke="#888" stroke-width="0.5" '
+            f'stroke-dasharray="3,5"/>'
+        )
+
+    # Sun
+    lines.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="6" fill="black"/>')
+    lines.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="3.5" fill="white"/>')
+    lines.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="2" fill="black"/>')
+
+    # Planets
+    for p in planets:
+        dist = math.sqrt(p["x_au"] ** 2 + p["y_au"] ** 2)
+        if dist < 0.001:
+            continue
+        dist_px = scale_distance(dist, max_px=max_r)
+        angle = math.atan2(p["y_au"], p["x_au"])
+        px = cx + dist_px * math.cos(angle)
+        py = cy - dist_px * math.sin(angle)
+
+        dot_r = PLANET_DOT_R.get(p["name"], 3)
+
+        lines.append(
+            f'<circle cx="{px:.1f}" cy="{py:.1f}" r="{dot_r}" fill="black"/>'
+        )
+
+        # Earth highlight ring
+        if p["name"] == "Earth":
+            lines.append(
+                f'<circle cx="{px:.1f}" cy="{py:.1f}" r="{dot_r + 2.5}" '
+                f'fill="none" stroke="black" stroke-width="1.2"/>'
+            )
+
+        if label_mode != "none":
+            label = p["name"] if label_mode == "full" else p["name"][:2]
+            font_size = 10 if label_mode == "full" else 8
+            ly = py - dot_r - 5
+            lines.append(
+                f'<text x="{px:.1f}" y="{ly:.1f}" text-anchor="middle" '
+                f'font-family="sans-serif" font-size="{font_size}" '
+                f'fill="black">{label}</text>'
+            )
+
+    lines.append('</svg>')
+    return '\n'.join(lines)
 
 
 def build_response():
@@ -153,9 +211,23 @@ def build_response():
     for name, elems in PLANETS.items():
         planets.append(compute_planet(name, elems, T))
 
+    # Generate SVG and base64 encode for each layout
+    svg_full = generate_svg(planets, 480, 400, label_mode="full")
+    svg_half = generate_svg(planets, 350, 210, label_mode="short")
+    svg_quad = generate_svg(planets, 300, 210, label_mode="short")
+
+    # Planet list for table/sidebar
+    planet_list = [
+        {"name": p["name"], "distance": f"{p['distance_au']:.2f}"}
+        for p in planets
+    ]
+
     return {
-        "planets": planets,
+        "planets": planet_list,
         "count": len(planets),
+        "img_full": base64.b64encode(svg_full.encode()).decode(),
+        "img_half": base64.b64encode(svg_half.encode()).decode(),
+        "img_quad": base64.b64encode(svg_quad.encode()).decode(),
         "date": now.strftime("%b %d, %Y"),
         "time_utc": now.strftime("%H:%M UTC"),
     }
