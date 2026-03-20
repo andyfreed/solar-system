@@ -72,11 +72,18 @@ PLANETS = {
         "w_bar": [44.96476227, -0.32241464],
         "Omega": [131.78422574, -0.00508664],
     },
+    "Pluto": {
+        "a": [39.48211675, -0.00031596],
+        "e": [0.24882730, 0.00005170],
+        "L": [238.92903833, 145.20780515],
+        "w_bar": [224.06891629, -0.04062942],
+        "Omega": [110.30393684, -0.01183482],
+    },
 }
 
 PLANET_DOT_R = {
     "Mercury": 2.5, "Venus": 3, "Earth": 3.5, "Mars": 3,
-    "Jupiter": 5, "Saturn": 4.5, "Uranus": 4, "Neptune": 4,
+    "Jupiter": 5, "Saturn": 4.5, "Uranus": 4, "Neptune": 4, "Pluto": 2.5,
 }
 
 
@@ -135,7 +142,7 @@ def compute_planet(name, elems, T):
     }
 
 
-def scale_distance(au, max_au=32.0, max_px=200):
+def scale_distance(au, max_au=42.0, max_px=200):
     return (math.sqrt(au) / math.sqrt(max_au)) * max_px
 
 
