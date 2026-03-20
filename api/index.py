@@ -221,9 +221,9 @@ def build_response():
     for p in planets:
         miles = p["distance_au"] * 92_955_807
         if miles >= 1_000_000_000:
-            dist_str = f"{miles / 1_000_000_000:.1f}B"
+            dist_str = f"{miles / 1_000_000_000:.1f} billion"
         else:
-            dist_str = f"{miles / 1_000_000:.0f}M"
+            dist_str = f"{int(miles / 1_000_000):,} million"
         planet_list.append({"name": p["name"], "distance": dist_str})
 
     return {
