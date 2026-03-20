@@ -158,8 +158,8 @@ def generate_svg(planets, width, height, label_mode="full"):
         r = scale_distance(a, max_px=max_r)
         lines.append(
             f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r:.1f}" '
-            f'fill="none" stroke="#888" stroke-width="0.5" '
-            f'stroke-dasharray="3,5"/>'
+            f'fill="none" stroke="black" stroke-width="1" '
+            f'stroke-dasharray="4,6"/>'
         )
 
     # Sun
