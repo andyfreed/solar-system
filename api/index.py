@@ -9,7 +9,7 @@ from http.server import BaseHTTPRequestHandler
 import base64
 import json
 import math
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 # NASA/JPL Keplerian elements for approximate planetary positions
 # Source: https://ssd.jpl.nasa.gov/planets/approx_pos.html
@@ -232,8 +232,8 @@ def build_response():
         "img_full": base64.b64encode(svg_full.encode()).decode(),
         "img_half": base64.b64encode(svg_half.encode()).decode(),
         "img_quad": base64.b64encode(svg_quad.encode()).decode(),
-        "date": now.strftime("%b %d, %Y"),
-        "time_utc": now.strftime("%H:%M UTC"),
+        "date": now.astimezone(timezone(timedelta(hours=-4))).strftime("%b %d, %Y"),
+        "time_utc": now.astimezone(timezone(timedelta(hours=-4))).strftime("%I:%M %p ET"),
     }
 
 
