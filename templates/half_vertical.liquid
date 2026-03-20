@@ -1,0 +1,31 @@
+<!--
+  TRMNL Solar System Viewer — Half Vertical Layout
+-->
+<div class="layout layout--col gap--space-between">
+  <div class="columns">
+    <div class="column">
+      <div class="markdown">
+        <h2>Solar System</h2>
+      </div>
+    </div>
+  </div>
+  <div class="columns">
+    <div class="column">
+      <img src="data:image/svg+xml;base64,{{ img_quad }}" width="300" height="210" />
+    </div>
+  </div>
+  <div class="columns">
+    <div class="column">
+      {% for planet in planets %}
+      <div style="margin-bottom:2px">
+        <strong>{{ planet.name }}</strong> {{ planet.distance }} mi
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="columns">
+    <div class="column">
+      <span class="label label--gray">{{ date }}</span>
+    </div>
+  </div>
+</div>
