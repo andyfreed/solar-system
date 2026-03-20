@@ -18,10 +18,13 @@
       <img src="data:image/svg+xml;base64,{{ img_full }}" width="560" height="430" />
     </div>
     <div class="column" style="flex:3">
+      <div class="markdown" style="margin-bottom:8px">
+        <h3>Miles from Sun</h3>
+      </div>
       {% for planet in planets %}
       <div class="meta" style="margin-bottom:4px">
         <span class="title title--small">{{ planet.name }}</span>
-        <span class="description">{{ planet.distance }} AU</span>
+        <span class="description">{{ planet.distance }} mi</span>
       </div>
       {% endfor %}
     </div>

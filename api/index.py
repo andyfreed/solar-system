@@ -216,11 +216,15 @@ def build_response():
     svg_half = generate_svg(planets, 350, 210, label_mode="short")
     svg_quad = generate_svg(planets, 300, 210, label_mode="short")
 
-    # Planet list for table/sidebar
-    planet_list = [
-        {"name": p["name"], "distance": f"{p['distance_au']:.2f}"}
-        for p in planets
-    ]
+    # Planet list for table/sidebar (distances in millions of miles)
+    planet_list = []
+    for p in planets:
+        miles = p["distance_au"] * 92_955_807
+        if miles >= 1_000_000_000:
+            dist_str = f"{miles / 1_000_000_000:.1f}B"
+        else:
+            dist_str = f"{miles / 1_000_000:.0f}M"
+        planet_list.append({"name": p["name"], "distance": dist_str})
 
     return {
         "planets": planet_list,
